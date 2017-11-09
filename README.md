@@ -20,11 +20,11 @@ You can assume that `size` will never be greater than `4096 - sizeof(struct p2he
 In addition, you *must* implement the following functions that provide some information about what is happening under the hood in your implementation.
 
 - `int p2allocated(void)`: return how much memory is currently allocated.
-	This would be the sum of all of the `size` allocations that have not been `free`d.
+	This would be the sum of all of the `size` allocations that have not been `free`d (this does not include the memory header, nor the internal fragmentation).
 - `int p2totmem(void)`: return the total amount of memory allocated to your library from `sbrk`.
 
 
-The difference between what `p2totmem` returns, and what `p2allocated` returns the total fragmentation in the system.
+The difference between `p2totmem()` and `p2allocated()` returns the total fragmentation in the system.
 
 ## Background
 
@@ -103,10 +103,12 @@ You can use two global variables to track the amount of allocated memory all of 
 	This will generate a very specific number of `sbrk`s due to allocations for different freelists.
 	No `p2free`s will be made.
 	We will simply check that the return values of `p2allocated` and `p2totmem` return the correct values.
+	This level essentially only tests `p2malloc`.
 - **Level 4 (40%).**
 	Support all of the specified power of two freelists, and for random allocation and free patterns.
 	If we bound the number of allocations in any freelist, we will check that your implementation only allocates actual memory through `sbrk` up to a point, and then never again.
 	Should not make unbounded number of `sbrk` requests.
+	This level (as opposed to level 3) tests both `p2malloc` *and* `p2free`.
 
 In all of the above, we will overwrite all requested memory to make sure that you are not overlapping your own data-structures with the memory for the allocation.
 
