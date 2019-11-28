@@ -84,3 +84,73 @@ malloc(uint nbytes)
 			if ((p = morecore(nunits)) == 0) return 0;
 	}
 }
+
+struct p2header{
+	int pow2;
+};
+
+struct p2freelist{
+	int pow2;
+	struct p2freelist *next, *prev;
+};
+
+//smallest: 16, largest: 4096
+//12-16, 17-32, 33-64, 65-128, 129-256, 257-512, 513-1024, 1025-2048, 2049-4096
+// (int)given size / 16 = index of memtable
+struct p2freelist memtable[9];
+
+void *
+p2malloc(int size)
+{
+	//implement sbrk when mem is full
+	int realsize = size + sizeof(struct p2header);
+	int i = index(realsize);
+
+	//add to correct index of memtable
+
+
+	return (void*)i;
+}
+
+void
+p2free(void *ptr)
+{
+
+}
+
+int
+p2allocated(void)
+{
+
+	return 0;
+}
+
+int
+p2totmem(void)
+{
+
+	return 0;
+}
+
+int
+index(int size)
+{
+	if(size <= 16)
+		return 0;
+	else if(size <= 32)
+		return 1;
+	else if(size <= 64)
+		return 2;
+	else if(size <= 128)
+		return 3;
+	else if(size <= 256)
+		return 4;
+	else if(size <= 512)
+		return 5;
+	else if(size <= 1024)
+		return 6;
+	else if(size <= 2048)
+		return 7;
+
+	return 8;
+}

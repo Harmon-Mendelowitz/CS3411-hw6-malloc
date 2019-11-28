@@ -37,3 +37,8 @@ void *memset(void *, int, uint);
 void *malloc(uint);
 void  free(void *);
 int   atoi(const char *);
+void *p2malloc(int);
+void  p2free(void *);
+int   p2allocated(void);
+int   p2totmem(void);
+int   index(int);
