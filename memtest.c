@@ -8,10 +8,10 @@ main(void)
     for(int x=0; x<26; x++)
     {
         void* m = p2malloc(12);
-        printf(1, "address: %p\n", &m);
-        memset(m, 'a'+x, 12);
+        printf(1, "address: %p\n", m);
+        memset(m, x, 12);
         char* i = (char *)m;
-        printf(1, "value: %c\n", *i);
+        printf(1, "value: %d\n", *i);
         p2free(m);
     }
 

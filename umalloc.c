@@ -132,7 +132,7 @@ p2malloc(int size)
 		if (p == (char *)-1) return (void*)0;
 		hp         = (struct p2header *)p;
 		hp->pow2 = pow;
-		free((void *)(hp + 1));
+		//free((void *)(hp + 1));
 
 		//global ptr
 		//head = fp;
@@ -142,45 +142,28 @@ p2malloc(int size)
 		//fills list with free spaces
 		for(int x = 0; x < 4096/pow; x++)
 		{
-			struct p2freelist* add = (struct p2freelist*)((char *)p + (x*pow));
+			struct p2freelist* add = (struct p2freelist*)((char *)((sizeof(struct p2header *)) + (p + (x*pow))));
+			//printf(1, "add: %p\n", add);
 			//struct p2freelist* add = (struct p2freelist*)((char *)head + pow);
 			add->next = memtable[i];
 			add->prev = 0;
 			add->pow2 = pow;
+			//printf(1, "add next: %p\n", add->next);
 
-			memtable[i]->prev = add;
+			if(memtable[i] != 0)
+				memtable[i]->prev = add;
+
 			memtable[i] = add;
+			//printf(1, "new head: %p\n", memtable[i]);
 			//printf(1, "size removed: %d\n", x);
 		}
 		//printf(1, "size removed:\n");
 	}
 
 	//actually allocate mem + header
-	/*Header *p, *prevp;
-	uint    nunits;
-
-	nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
-	if ((prevp = freep) == 0) {
-		base.s.ptr = freep = prevp = &base;
-		base.s.size                = 0;
-	}
-	for (p = prevp->s.ptr;; prevp = p, p = p->s.ptr) {
-		if (p->s.size >= nunits) {
-			if (p->s.size == nunits)
-				prevp->s.ptr = p->s.ptr;
-			else {
-				p->s.size -= nunits;
-				p += p->s.size;
-				p->s.size = nunits;
-			}
-			freep = prevp;
-			return (void *)(p + 1);
-		}
-		if (p == freep)
-			if ((p = morecore(nunits)) == 0) return 0;
-	}*/
 	struct p2header *ret = (struct p2header *)((char *)memtable[i] - (sizeof(struct p2header *)));
 	memtable[i] = memtable[i]->next;
+	//memtable[i]->prev->next = 0;
 	memtable[i]->prev = 0;
 	ret->pow2 = size;
 	
@@ -218,7 +201,7 @@ p2free(void *ptr)
 
 
 	totalloc -= list;
-	//printf(1, "size removed: %d\n", list);
+	printf(1, "size removed: %d\n", list);
 }
 
 int

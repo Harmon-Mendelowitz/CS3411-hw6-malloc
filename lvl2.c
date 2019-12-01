@@ -9,6 +9,7 @@ main(void)
     for(int x=0; x<8; x++)
     {
         void* m = p2malloc(12);
+        printf(1, "address: %p\n", m);
         memset(m, 'a'+x, 12);
         ptr[x] = m;
     }

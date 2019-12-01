@@ -176,6 +176,7 @@ UPROGS=\
 	_zombie\
 	_memtest\
 	_lvl2\
+	_lvl3\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
