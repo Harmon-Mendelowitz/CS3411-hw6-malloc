@@ -5,15 +5,21 @@ int
 main(void)
 {
 
-    for(int x=0; x<1000; x++)
+    for(int x=0; x<26; x++)
     {
         void* m = p2malloc(12);
-        memset(m, 5, 12);
+        printf(1, "address: %p\n", &m);
+        memset(m, 'a'+x, 12);
+        char* i = (char *)m;
+        printf(1, "value: %c\n", *i);
         p2free(m);
     }
 
-    p2allocated();
-    p2totmem();
+    int a = p2allocated();
+    int t = p2totmem();
+
+    printf(1, "allocated mem: %d\n", a);
+    printf(1, "total mem: %d\n", t);
 
     exit();
 }
