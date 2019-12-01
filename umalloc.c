@@ -100,8 +100,6 @@ struct p2freelist{
 struct p2freelist* memtable[9];
 
 typedef struct p2header p2h;
-//static p2h  b;
-//static p2h *fp;
 
 int totmem = 0;
 int totalloc = 0;
@@ -132,10 +130,6 @@ p2malloc(int size)
 		if (p == (char *)-1) return (void*)0;
 		hp         = (struct p2header *)p;
 		hp->pow2 = pow;
-		//free((void *)(hp + 1));
-
-		//global ptr
-		//head = fp;
 
 		totmem += 4096;
 		
@@ -143,27 +137,20 @@ p2malloc(int size)
 		for(int x = 0; x < 4096/pow; x++)
 		{
 			struct p2freelist* add = (struct p2freelist*)((char *)((sizeof(struct p2header *)) + (p + (x*pow))));
-			//printf(1, "add: %p\n", add);
-			//struct p2freelist* add = (struct p2freelist*)((char *)head + pow);
 			add->next = memtable[i];
+			add->next->prev = add;
 			add->prev = 0;
 			add->pow2 = pow;
-			//printf(1, "add next: %p\n", add->next);
-
-			if(memtable[i] != 0)
-				memtable[i]->prev = add;
 
 			memtable[i] = add;
-			//printf(1, "new head: %p\n", memtable[i]);
-			//printf(1, "size removed: %d\n", x);
 		}
-		//printf(1, "size removed:\n");
 	}
 
 	//actually allocate mem + header
 	struct p2header *ret = (struct p2header *)((char *)memtable[i] - (sizeof(struct p2header *)));
 	memtable[i] = memtable[i]->next;
-	//memtable[i]->prev->next = 0;
+	if(memtable[i]->prev!=0)
+		memtable[i]->prev->next = 0;
 	memtable[i]->prev = 0;
 	ret->pow2 = size;
 	
@@ -201,7 +188,6 @@ p2free(void *ptr)
 
 
 	totalloc -= list;
-	printf(1, "size removed: %d\n", list);
 }
 
 int
