@@ -97,7 +97,10 @@ struct p2freelist{
 //smallest: 16, largest: 4096
 //12-16, 17-32, 33-64, 65-128, 129-256, 257-512, 513-1024, 1025-2048, 2049-4096
 // (int)given size / 16 = index of memtable
-struct p2freelist memtable[9];
+struct p2freelist* memtable[9];
+
+int totmem = 0;
+int totalloc = 0;
 
 void *
 p2malloc(int size)
@@ -106,30 +109,69 @@ p2malloc(int size)
 	int realsize = size + sizeof(struct p2header);
 	int i = index(realsize);
 
-	//add to correct index of memtable
+	int pow = 16;
+	for(int x=0; x<i; x++)
+	{
+		pow = pow*2;
+	}
 
+	if(memtable[i] == 0)
+	{
+		char *  p;
+		struct p2header *hp;
 
-	return (void*)i;
+		uint nu = 4096;
+		p = sbrk(nu);
+		if (p == (char *)-1) return 0;
+		hp         = (struct p2header *)p;
+		hp->pow2 = pow;
+		
+		for(int x = 0; x < hp->pow2/pow; x++)
+		{
+			
+		}
+
+		//free((void *)(hp + 1));
+
+	}
+
+	//add new mem to list
+	/*
+	struct p2freelist* add;
+	add->next = memtable[i];
+	add->prev = 0;
+	add->pow2 = pow;
+
+	memtable[i]->prev = add;
+	memtable[i] = add;
+	*/
+	//actually allocate mem + header
+
+	return (void*)0;
 }
 
 void
 p2free(void *ptr)
 {
+	//obtain header val
+	struct p2header* head = (struct p2header *)((char *)ptr - sizeof(struct p2header));
+	int list = head->pow2;
 
+	printf(1, "%d\n", list);
 }
 
 int
 p2allocated(void)
 {
 
-	return 0;
+	return totalloc;
 }
 
 int
 p2totmem(void)
 {
 
-	return 0;
+	return totmem;
 }
 
 int
