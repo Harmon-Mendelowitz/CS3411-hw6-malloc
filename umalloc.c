@@ -101,7 +101,7 @@ struct p2freelist* memtable[9];
 
 typedef struct p2header p2h;
 //static p2h  b;
-static p2h *fp;
+//static p2h *fp;
 
 int totmem = 0;
 int totalloc = 0;
@@ -125,7 +125,7 @@ p2malloc(int size)
 	{
 		char *  p;
 		struct p2header *hp;
-		struct p2header *head;
+		//struct p2header *head;
 
 		uint nu = 4096;
 		p = sbrk(nu);
@@ -135,16 +135,16 @@ p2malloc(int size)
 		free((void *)(hp + 1));
 
 		//global ptr
-		head = fp;
+		//head = fp;
 
 		totmem += 4096;
 		
 		//fills list with free spaces
-		//for(int x = 0; x < 4096/pow; x++)
+		for(int x = 0; x < 4096/pow; x++)
 		{
-			//struct p2freelist* add = (struct p2freelist*)((char *)head + (x*pow));
-			struct p2freelist* add = (struct p2freelist*)((char *)head + pow);
-			//add->next = memtable[i];
+			struct p2freelist* add = (struct p2freelist*)((char *)p + (x*pow));
+			//struct p2freelist* add = (struct p2freelist*)((char *)head + pow);
+			add->next = memtable[i];
 			add->prev = 0;
 			add->pow2 = pow;
 
@@ -152,7 +152,7 @@ p2malloc(int size)
 			memtable[i] = add;
 			//printf(1, "size removed: %d\n", x);
 		}
-		printf(1, "size removed:\n");
+		//printf(1, "size removed:\n");
 	}
 
 	//actually allocate mem + header
@@ -179,20 +179,45 @@ p2malloc(int size)
 		if (p == freep)
 			if ((p = morecore(nunits)) == 0) return 0;
 	}*/
+	struct p2header *ret = (struct p2header *)((char *)memtable[i] - (sizeof(struct p2header *)));
+	memtable[i] = memtable[i]->next;
+	memtable[i]->prev = 0;
+	ret->pow2 = size;
+	
 
 	totalloc += size;
-	return (void*)((char *)memtable[i]+sizeof(struct p2header *));
+	return (void*)((char *)ret + sizeof(struct p2header *));
 }
 
 void
 p2free(void *ptr)
 {
 	//obtain header val
-	//struct p2header* head = (struct p2header *)((char *)ptr - sizeof(struct p2header));
-	//int list = head->pow2;
+	struct p2header* head = (struct p2header *)((char *)ptr - sizeof(struct p2header));
+	int list = head->pow2;
 
-	//totalloc -= list;
+	struct p2freelist* add = (struct p2freelist*)((char *)ptr);
+	
+	//index of list
+	int realsize = list + sizeof(struct p2header);
+	int i = index(realsize);
+	//size of the list to insert into
+	int pow = 16;
+	for(int x=0; x<i; x++)
+	{
+		pow = pow*2;
+	}
 
+	//insert into list
+	add->next = memtable[i];
+	add->prev = 0;
+	add->pow2 = pow;
+
+	memtable[i]->prev = add;
+	memtable[i] = add;
+
+
+	totalloc -= list;
 	//printf(1, "size removed: %d\n", list);
 }
 
