@@ -122,14 +122,10 @@ p2malloc(int size)
 	if(memtable[i] == 0)
 	{
 		char *  p;
-		struct p2header *hp;
-		//struct p2header *head;
 
 		uint nu = 4096;
 		p = sbrk(nu);
 		if (p == (char *)-1) return (void*)0;
-		hp         = (struct p2header *)p;
-		hp->pow2 = pow;
 
 		totmem += 4096;
 		
